@@ -1,0 +1,13 @@
+train has 40M lines.
+test has 4M.
+
+Model ideas:
+- To reduce the number of features when encoding a categorical variable, use count, ranking by count, or probability of each category.
+    Other ways to deal with the same issue: feature hashing, embeding into a vector space (embedding_column in tf).
+    Look into "locally sensitive hashing" algorithms in Spark.
+
+Ref:
+- Winner (also the winner of the criteo comp)
+    https://github.com/guestwalk/kaggle-avazu
+- 2nd place soln  https://github.com/owenzhang/kaggle-avazu
+- Feature ideas: https://medium.com/unstructured/how-feature-engineering-can-help-you-do-well-in-a-kaggle-competition-part-i-9cc9a883514d
