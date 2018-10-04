@@ -2,12 +2,34 @@ train has 40M lines.
 test has 4M.
 
 Ideas:
+- LogisticRegression, NaiveBayes, Tree ensemble (use probabilityCol) (slow?)
+- An user is more likely to click if she clicked previously.
+    The number of unique (device_ip, id) tuples is similar to that of device_ip's, so use ip's to represent users.
+- Ads on a site and those on an app are mutually exclusive.
+    Create separate models for the two types of ads.
 - To reduce the number of features when encoding a categorical variable, use count, ranking by count, or probability of each category.
-    Other ways to deal with the same issue: feature hashing, embeding into a vector space (embedding_column in tf).
+    Other ways to deal with the same issue: feature hashing, embedding into a vector space (embedding_column in tf).
     Look into "locally sensitive hashing" algorithms in Spark.
+- Feature selection: sklearn's SelectKBest (and its family), L1, tree models.
 - How to find correlated categorical variables?
 - How to model "if the user clicked on an ad previously, she is likely to click again"?
     Use of device_ip and device_id.
+
+Facts:
+- The click rate for train_small.csv is 0.170. 0.175 for the full data set.
+- In the test set, site_id and app_id are mutually exclusive.
+- Hashed values for NULL (does the test set have the same set of null values?):
+    device_id: a99f214a 
+    site_id: 1fbe01fe (this may not be a null value) (85f751fd in test)
+    site_domain: c4e18dd6
+    site_category: 50e219e0
+    app_id: ecad2386
+    app_domain: 7801e8d9
+    app_cateogry: 07d7df22
+    C23: -1
+- Spark handles string categoricals better than sklearn.
+    sklearn's LabelEncoder doesn't equal Spark's StringIndexer.
+    CategoricalEncoder is coming to sklearn soon (maybe?)
 
 Ref:
 - Winner (also the winner of the criteo comp)
