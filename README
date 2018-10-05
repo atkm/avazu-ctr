@@ -1,7 +1,54 @@
 train has 40M lines.
 test has 4M.
 
+TODO:
+- user-category interaction (Model 2).
+- user-site interaction (Model 3).
+- hour: morning, afternoon, night; weekend or not.
+- high-cardinality anonymous variables: C14, C17, C20 (Model 1.5).
+- Correlation of features
+- Parameters of the lg model to tune:
+    + elasticNetParam & regParam: L2 by default. Set elasticNetParam=1 to use L1.
+    + standardization: categorical variables shouldn't need standardization.
+    + weightCol: correct for inbalance.
+
+Model 4:
+- both user-site and user-category interactions.
+
+Model 3:
+- user-site interaction (site_id, device_ip), (app_id, device_ip)
+
+Model 2:
+- add user-category interaction: count per day (site_category, device_ip), (app_category, device_ip)
+
+Mode 1.5:
+- add C14, C17, and C20 to the model.
+
+Model 1 (basemodel):
+- C1
+- banner_pos
+- site_category_vec
+- app_category_vec
+- device_type
+- device_conn_type
+- C15
+- C16
+- C18
+- C19
+- C21
+
+No idea yet:
+- hour
+- device_model
+- high-cardinality anonymous variables: C14, C17, C20
+
+Not using:
+- site_domain, app_domain: correlated with site/app_id (check)
+- device_id: correlated with device_ip (check)
+
 Ideas:
+- Does device_id roughly model users?
+    It is most likely noisy, since unique users aren't easy to model.
 - LogisticRegression, NaiveBayes, Tree ensemble (use probabilityCol) (slow?)
 - An user is more likely to click if she clicked previously.
     The number of unique (device_ip, id) tuples is similar to that of device_ip's, so use ip's to represent users.
@@ -11,22 +58,16 @@ Ideas:
     Other ways to deal with the same issue: feature hashing, embedding into a vector space (embedding_column in tf).
     Look into "locally sensitive hashing" algorithms in Spark.
 - Feature selection: sklearn's SelectKBest (and its family), L1, tree models.
+    Spark doesn't do recursive elimination, but does chi-square test.
 - How to find correlated categorical variables?
+- Metrics.
+    Use log-loss to evaluate. Others: precision, recall, F2, accuracy (ratio of correct).
 - How to model "if the user clicked on an ad previously, she is likely to click again"?
     Use of device_ip and device_id.
 
 Facts:
 - The click rate for train_small.csv is 0.170. 0.175 for the full data set.
 - In the test set, site_id and app_id are mutually exclusive.
-- Hashed values for NULL (does the test set have the same set of null values?):
-    device_id: a99f214a 
-    site_id: 1fbe01fe (this may not be a null value) (85f751fd in test)
-    site_domain: c4e18dd6
-    site_category: 50e219e0
-    app_id: ecad2386
-    app_domain: 7801e8d9
-    app_cateogry: 07d7df22
-    C23: -1
 - Spark handles string categoricals better than sklearn.
     sklearn's LabelEncoder doesn't equal Spark's StringIndexer.
     CategoricalEncoder is coming to sklearn soon (maybe?)
