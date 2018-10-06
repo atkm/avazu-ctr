@@ -13,8 +13,8 @@ def fit_encoders(df, cols):
     return encoders_dict
 
 
-def neg_log_loss_score(lg, X_test, y_test):
-    return -log_loss(y_test, lg.predict_proba(X_test))
+def neg_log_loss_score(predictor, X_test, y_test):
+    return -log_loss(y_test, predictor.predict_proba(X_test))
 
 
 def train_test_split(X, y, test_day):
@@ -29,3 +29,47 @@ def train_test_split(X, y, test_day):
     y_train = y[train_day_mask]
 
     return X_train, y_train, X_test, y_test
+
+def fit_and_score(X_train, y_train, X_dev, y_dev, pipeline, params):
+
+    # the DataFrame needs the hour column for splitting. Drop the column right before training.
+    X_train = X_train.drop('hour', axis=1)
+    X_dev = X_dev.drop('hour', axis=1)
+
+    pipeline.set_params(**params)
+    pipeline.fit(X_train, y_train)
+    return neg_log_loss_score(pipeline, X_dev, y_dev)
+
+def score_one_test_day(X_train, y_train, pipeline, params_dict, test_day):
+    """
+    params_dict: map from keywords (string) to values
+    """
+    X_train, y_train, X_dev, y_dev = train_test_split(X_train, y_train, test_day)
+    return fit_and_score(X_train, y_train, X_dev, y_dev, pipeline, params_dict)
+
+def score_one_param(X_train, y_train, pipeline, params_dict, test_day_ls):
+
+    scores = []
+    for test_day in test_day_ls:
+        scores.append(score_one_test_day(X_train, y_train, pipeline, params_dict, test_day))
+
+    assert len(scores) == len(test_day_ls)
+
+    #print('Scores:', scores)
+    mean_score = sum(scores)/len(scores)
+    #print('Mean: ', mean_score)
+    return mean_score
+
+def score_params(X_train, y_train, pipeline, params_dict_ls, test_day_ls):
+    """
+    Returns a map: parameter -> mean score.
+    """
+
+    scores = []
+    for params_dict in params_dict_ls:
+        scores.append(score_one_param(X_train, y_train, pipeline, params_dict, test_day_ls))
+    return scores
+
+def best_param(scores, param_dict_ls):
+    maxidx = scores.index(max(scores))
+    return param_dict_ls[maxidx]
