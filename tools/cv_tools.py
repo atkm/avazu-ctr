@@ -24,17 +24,22 @@ def train_test_split(X, y, test_day):
     test_day_mask = X.hour.dt.day == test_day
     train_day_mask = X.hour.dt.day < test_day
     X_test = X[test_day_mask]
-    y_test = y[test_day_mask]
     X_train = X[train_day_mask]
-    y_train = y[train_day_mask]
 
-    return X_train, y_train, X_test, y_test
+    if y is None:
+        return X_train, X_test
+    else:
+        y_test = y[test_day_mask]
+        y_train = y[train_day_mask]
+        return X_train, y_train, X_test, y_test
 
 def fit_and_score(X_train, y_train, X_dev, y_dev, pipeline, params):
 
     # the DataFrame needs the hour column for splitting. Drop the column right before training.
-    X_train = X_train.drop('hour', axis=1)
-    X_dev = X_dev.drop('hour', axis=1)
+    if 'hour' in X_train.columns:
+        X_train = X_train.drop('hour', axis=1)
+    if 'hour' in X_dev.columns:
+        X_dev = X_dev.drop('hour', axis=1)
 
     pipeline.set_params(**params)
     pipeline.fit(X_train, y_train)

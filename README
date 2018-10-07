@@ -2,11 +2,13 @@ train has 40M lines.
 test has 4M.
 
 TODO:
-- user-category interaction (Model 2).
-- user-site interaction (Model 3).
+- Submit Model 3
+- use device_ip instead of device_id to model users.
+    Re-run Model 2 and 3.
+- Model 4
+- Correlation of features
 - hour: morning, afternoon, night; weekend or not.
 - high-cardinality anonymous variables: C14, C17, C20 (Model 1.5).
-- Correlation of features
 - Parameters of the lg model to tune:
     + elasticNetParam & regParam: L2 by default. Set elasticNetParam=1 to use L1.
     + standardization: categorical variables shouldn't need standardization.
