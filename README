@@ -2,7 +2,6 @@ train has 40M lines.
 test has 4M.
 
 TODO:
-- Submit Model 3
 - use device_ip instead of device_id to model users.
     Re-run Model 2 and 3.
 - Model 4
@@ -15,7 +14,7 @@ TODO:
     + weightCol: correct for inbalance.
 
 Model 4:
-- both user-site and user-category interactions.
+- both user-site and high-cardinality variables
 
 Model 3:
 - user-site interaction (site_id, device_ip), (app_id, device_ip)
