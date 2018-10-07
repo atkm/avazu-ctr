@@ -67,6 +67,7 @@ Ideas:
     Use of device_ip and device_id.
 
 Facts:
+- On a 32GB machine, Model 3 exhausts memory at the (one-hot?) encoding step.
 - The click rate for train_small.csv is 0.170. 0.175 for the full data set.
 - In the test set, site_id and app_id are mutually exclusive.
 - Spark handles string categoricals better than sklearn.
