@@ -14,7 +14,11 @@ TODO:
     + weightCol: correct for inbalance.
 
 Model 4:
-- both user-site and high-cardinality variables
+- Build on model 3:
+    + add site/app_category cols
+    + add high-cardinality categorical variables
+    + add hour
+    + training set reduction by removing rows whose (device_id, site/app_id) pairs do not appear in the test set.
 
 Model 3:
 - user-site interaction (site_id, device_ip), (app_id, device_ip)
@@ -50,7 +54,7 @@ Not using:
 Ideas:
 - Does device_id roughly model users?
     It is most likely noisy, since unique users aren't easy to model.
-- LogisticRegression, NaiveBayes, Tree ensemble (use probabilityCol) (slow?)
+- LogisticRegression, NaiveBayes, RandomForestClassifier, LinearSVC (use decision_function), Gaussian Naive Bayes
 - An user is more likely to click if she clicked previously.
     The number of unique (device_ip, id) tuples is similar to that of device_ip's, so use ip's to represent users.
 - Ads on a site and those on an app are mutually exclusive.

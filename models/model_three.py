@@ -8,6 +8,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
 
 from tools.cv_tools import train_test_split, score_params, fit_and_score, best_param
+from models.base import ClickRateEncoder
 
 import time
 
@@ -90,11 +91,13 @@ class ClickRateBySiteEncoder(BaseEstimator, TransformerMixin):
 
 
 def get_model_three_pipeline(interaction='both'):
-    cr_encoder = ClickRateBySiteEncoder(interaction)
+    cr_site_encoder = ClickRateEncoder(['site_id','device_id'], 'click_rate_by_site_id')
+    cr_app_encoder = ClickRateEncoder(['app_id','device_id'], 'click_rate_by_app_id')
     oh_encoder = OneHotEncoder(handle_unknown='ignore')
     preprocessor = ColumnTransformer([
         ('one_hot_encoding', oh_encoder, categorical_features),
-        ('click_rate_encoding', cr_encoder, click_rate_cols)
+        ('click_rate_encoding_site', cr_site_encoder, ['click','site_id','device_id']),
+        ('click_rate_encoding_app', cr_app_encoder, ['click','app_id','device_id'])
     ])
 
     lg = LogisticRegression(solver='liblinear')

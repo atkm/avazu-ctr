@@ -30,6 +30,7 @@ if param_tuning:
     print('Tuning done.')
     param = best_C
 else:
+    # best param for test_small.csv
     param = {'logistic_regression__C': 0.00026826957952797245}
 
 
