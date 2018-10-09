@@ -5,10 +5,10 @@ import pandas as pd
 import numpy as np
 import models.model_one_plus
 from tests.util import ColumnChecker, get_nuniques
+from tests.fixtures import df_train_tiny
 
-def test_model_one_plus_cols():
-    train_tiny_csv = pkg_resources.resource_stream('data', 'train_tiny.csv')
-    df = pd.read_csv(train_tiny_csv)
+def test_model_one_plus_cols(df_train_tiny):
+    df = df_train_tiny.copy()
     high_cardinality_features = ['site_id','app_id','device_id']
     pipeline = models.model_one_plus.get_model_one_plus_pipeline(high_cardinality_features)
     pipeline.steps.pop() # remove logistic regression

@@ -6,10 +6,10 @@ import numpy as np
 import models.model_one
 import tools.cv_tools
 
-def test_model_one():
-    train_tiny_csv = pkg_resources.resource_stream('data', 'train_tiny.csv')
-    df = pd.read_csv(train_tiny_csv)
-    df.hour = pd.to_datetime(df.hour, format="%y%m%d%H")
+from tests.fixtures import df_train_tiny
+
+def test_model_one(df_train_tiny):
+    df = df_train_tiny.copy()
     params = np.logspace(-3, 0, num=10)
     params_dict_ls, scores, test_score = models.model_one.eval_model_one(df, params)
     best_C = tools.cv_tools.best_param(scores, params_dict_ls)
