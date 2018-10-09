@@ -17,7 +17,7 @@ def test_model_three_cols():
     train_tiny_csv = pkg_resources.resource_stream('data', 'train_tiny.csv')
     df = pd.read_csv(train_tiny_csv)
     pipeline = models.model_three.get_model_three_pipeline()
-    pipeline.steps.pop() # remove 
+    pipeline.steps.pop() # remove logistic regression
 
     categorical_features = models.model_three.categorical_features
     nuniques = get_nuniques(df[categorical_features])

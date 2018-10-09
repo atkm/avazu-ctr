@@ -9,20 +9,6 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 from models.base import ClickRateEncoder, tune_logistic_regression_pipeline
 
-model_three_cols = ['C1',
-                  'click',
-                 'banner_pos',
-                  'app_id',
-                  'site_id',
-                  'device_id',
-                 'device_type',
-                 'device_conn_type',
-                 'C15',
-                 'C16',
-                 'C18',
-                 'C19',
-                 'C21']
-
 categorical_features = ['C1',
               'banner_pos',
               'app_id',
@@ -105,6 +91,5 @@ def get_model_three_pipeline(interaction='both'):
 
 def tune_model_three(df, params, interaction='both'):
 
-    print('new tune_model_three')
     pipeline = get_model_three_pipeline(interaction)
     return tune_logistic_regression_pipeline(df, pipeline, params)
