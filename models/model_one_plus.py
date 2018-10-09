@@ -47,5 +47,5 @@ def get_model_one_plus_pipeline(high_cardinality_cols):
     return pipeline
 
 def tune_model_one_plus(df, params, high_cardinality_cols):
-    pipeline = get_model_one_plus_pipeline(interaction)
+    pipeline = get_model_one_plus_pipeline(high_cardinality_cols)
     return tune_logistic_regression_pipeline(df, pipeline, params)
