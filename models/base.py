@@ -7,9 +7,9 @@ import time
 
 class ClickRateEncoder(BaseEstimator, TransformerMixin):
     
-    def __init__(self, cols, click_rate_col_name):
+    def __init__(self, cols, col_name):
         self.cols = cols
-        self.col_name = click_rate_col_name
+        self.col_name = col_name
         self.click_rate = None
         
     def fit(self, X, y=None):
