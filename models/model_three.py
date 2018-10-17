@@ -90,6 +90,5 @@ def get_model_three_pipeline(interaction='both'):
     return pipeline
 
 def tune_model_three(df, params, interaction='both'):
-
     pipeline = get_model_three_pipeline(interaction)
     return tune_logistic_regression_pipeline(df, pipeline, params)

@@ -35,11 +35,12 @@ def train_test_split(X, y, test_day):
 
 def fit_and_score(X_train, y_train, X_dev, y_dev, pipeline, params):
 
+    # Note: the pipeline model should select which columns to use via ColumnTransformer
     # the DataFrame needs the hour column for splitting. Drop the column right before training.
-    if 'hour' in X_train.columns:
-        X_train = X_train.drop('hour', axis=1)
-    if 'hour' in X_dev.columns:
-        X_dev = X_dev.drop('hour', axis=1)
+    #if 'hour' in X_train.columns:
+    #    X_train = X_train.drop('hour', axis=1)
+    #if 'hour' in X_dev.columns:
+    #    X_dev = X_dev.drop('hour', axis=1)
 
     pipeline.set_params(**params)
     pipeline.fit(X_train, y_train)

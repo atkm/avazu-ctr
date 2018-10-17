@@ -5,6 +5,51 @@ from tools.cv_tools import train_test_split, score_params, fit_and_score, best_p
 
 import time
 
+
+
+class CountEncoder(BaseEstimator, TransformerMixin):
+    
+    def __init__(self, col, count_col_name):
+        """
+        col: String - the name of the column to encode
+        col_name: String - the name of a column to output the resulting count feature.
+        """
+        self.col = col
+        self.count_col_name = count_col_name
+        self.counts = None # a pd.Series
+    
+    def fit(self, X, y=None):
+        self.counts = X.groupby(self.col).size().to_frame(self.count_col_name)
+        return self
+    
+    def transform(self, X):
+        X = pd.merge(X, self.counts, how='left', on=self.col)
+        X = X.fillna({self.count_col_name: 0})
+        # return only the count column
+        return X[[self.count_col_name]]
+
+class HourlyCountEncoder(BaseEstimator, TransformerMixin):
+    
+    def __init__(self, col, count_col_name):
+        """
+        col: String - the name of the column to encode
+        col_name: String - the name of a column to output the resulting count feature.
+        """
+        self.col = col
+        self.count_col_name = count_col_name
+        self.counts = None # a pd.Series
+    
+    def fit(self, X, y=None):
+        self.counts = X.groupby([X.hour, self.col]).size().to_frame(self.count_col_name)
+        return self
+    
+    def transform(self, X):
+        X = pd.merge(X, self.counts, how='left', on=['hour', self.col])
+        X = X.fillna({self.count_col_name: 0})
+        return X[[self.count_col_name]]
+
+
+
 class ClickRateEncoder(BaseEstimator, TransformerMixin):
     
     def __init__(self, cols, col_name):
@@ -25,6 +70,16 @@ class ClickRateEncoder(BaseEstimator, TransformerMixin):
             X = X.drop('click', axis=1)
             
         return X.drop(self.cols, axis=1)
+
+def create_user(df):
+    """
+    Adds a user column.
+    """
+    device_id_null = 'a99f214a'
+    df['device_ip_model'] = df.device_ip.str.cat(df.device_model, sep='_')
+    df['user'] = df.device_id.where(df.device_id != device_id_null,
+                                    df.device_ip_model)
+    return df
 
 def tune_logistic_regression_pipeline(df, pipeline, params):
     """
