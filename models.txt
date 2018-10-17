@@ -6,15 +6,13 @@ Current high scores (1604 total entries):
 - Model 3 ('both', incl id cols). On 50% of train.csv. Tuned. Tuning time = 9895s.
     Private 0.4111518 (1162th); Public 0.4131281
 
-Model 6:
-- click history
-
 Model 5:
-- different models for site rows and app rows.
+- click history
 
 Model 4:
 - define user
 - count features instead of click-rate features
+- different models for site rows and app rows.
 
 Model 3 Plus:
 - introduce more columns to Model 3
