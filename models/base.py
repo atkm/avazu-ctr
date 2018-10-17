@@ -81,6 +81,27 @@ def create_user(df):
                                     df.device_ip_model)
     return df
 
+def site_app_split(df):
+    """
+    Split data into two based on whether the site_id is null.
+    site/app_id/domain/category columns are renamed to platform_id/domain/category.
+    """
+    site_id_null_mask = df.site_id == '85f751fd'
+    df_app = df[site_id_null_mask]
+    df_app = df_app.drop(['site_id', 'site_domain', 'site_category'], axis=1)
+    df_app = df_app.rename({'app_id': 'platform_id',
+                            'app_domain': 'platform_domain',
+                            'app_category': 'platform_category'}, axis=1)
+    
+    df_site = df[~site_id_null_mask]
+    df_site = df_site.drop(['app_id', 'app_domain', 'app_category'], axis=1)
+    df_site = df_site.rename({'site_id': 'platform_id',
+                            'site_domain': 'platform_domain',
+                            'site_category': 'platform_category'}, axis=1)
+
+    return df_site, df_app
+
+
 def tune_logistic_regression_pipeline(df, pipeline, params):
     """
     Tunes 'logistic_regression__C'.
