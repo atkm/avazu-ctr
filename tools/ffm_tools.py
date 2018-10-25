@@ -5,6 +5,7 @@ from tools.cv_tools import train_test_split
 from models.base import site_app_split
 
 import os
+import re
 
 def make_field_dict(df, fields):
     """
@@ -17,8 +18,6 @@ def make_feature_dict(df, fields):
     # prepend a field name to each feature in order to distinguish
     # a feature name present in two or more fields.
     features = [f'{c}_' + df[c].astype('str') for c in fields]
-    #for c in fields:
-    #    df[c] = f'{c}_' + df[c].astype('str')
     # TODO: we could hash all features at this stage.
     # TODO: hash into a smaller space to make the dict smaller
     #df[fields] = df[fields].applymap(hash)
@@ -29,14 +28,26 @@ def make_feature_dict(df, fields):
     return pd.Series(np.arange(len(uniques)),index=uniques)
 
 def encode_features(df, feature_dict, fields):
-    # df.replace(feature_dict) doesn't fit in memory.
-    # optimize by splitting the feature_dict into dictionaries corresponding to fields.
-    replace_dict = dict()
-    for c in fields:
-        replace_dict[c] = {k: v for k, v in feature_dict.items()
-                           if k.startswith(c)}
 
-    return df.replace(replace_dict)
+    def new_feature_key(k, col, col_type):
+        prefix = f'^{col}_'
+        prefix_re = re.compile(prefix)
+        prefix_removed = re.sub(prefix_re,'',k)
+        if col_type == np.dtype('int'):
+            return int(prefix_removed)
+        elif col_type == np.dtype('O'):
+            return prefix_removed
+        else:
+            raise ValueError(f'Unsupported dtype of a feature key: {col_type}.')
+
+    for c in fields:
+        col_type = df[c].dtype
+        # a slice of feature_dict for col c
+        replace_dict = {new_feature_key(k, c, col_type): v for k, v in feature_dict.items()
+                           if k.startswith(c)}
+        df[c] = df[c].map(replace_dict)
+
+    return df
 
 
 # TODO: would be nice to be able to write column-by-column.
