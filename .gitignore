@@ -3,4 +3,5 @@ __pycache__/
 .ipynb_checkpoints/
 venv/
 data/
+ffm-data/
 submission*.csv*
