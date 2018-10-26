@@ -40,20 +40,21 @@ def encode_features(df, feature_dict, fields):
         else:
             raise ValueError(f'Unsupported dtype of a feature key: {col_type}.')
 
+    feature_dict_size = len(feature_dict)
     for c in fields:
         col_type = df[c].dtype
         # a slice of feature_dict for col c
         replace_dict = {new_feature_key(k, c, col_type): v for k, v in feature_dict.items()
                            if k.startswith(c)}
-        df[c] = df[c].map(replace_dict)
+        df[c] = df[c].map(replace_dict).fillna(feature_dict_size).astype(int)
 
     return df
 
 
-# TODO: would be nice to be able to write column-by-column.
-def ffm_row_generator(df, feature_dict, test=False):
+def ffm_row_generator(df, test=False):
     """
     Convert each row to the libffm format, accroding to a provided dict.
+    Features of the DataFrame must be identified with integers (use encode_features).
     All columns of df are used.
     If test=False, the last column of df must be 'click'; otherwise, 'click' is all one.
     """
@@ -69,14 +70,8 @@ def ffm_row_generator(df, feature_dict, test=False):
         else:
             ffm_row.append(str(row['click']))
         # if test, ignore 'id', else ignore 'click'.
-        for i, v in enumerate(row[:-1]):
-            col_name = df.columns[i]
-            feature = '_'.join([col_name, str(v)])
-            if feature in feature_dict:
-                feature_idx = feature_dict[feature]
-                ffm_row.append(f'{i}:{feature_idx}:1')
-            else:
-                ffm_row.append(f'{i}:{feature_dict["__unseen__"]}:1')
+        for col, v in enumerate(row[:-1]):
+            ffm_row.append(f'{col}:{v}:1')
 
         yield ' '.join(ffm_row)
         
@@ -92,7 +87,6 @@ def df_to_ffm(df, categorical_features, fname, data_type='train', feature_dict_t
     if data_type=='test' or data_type=='validate':
         assert feature_dict_train is not None
         feature_dict = feature_dict_train
-        # TODO: do I need unseen for each column?
         feature_dict['__unseen__'] = len(feature_dict)
 
         if data_type=='validate':
@@ -104,8 +98,13 @@ def df_to_ffm(df, categorical_features, fname, data_type='train', feature_dict_t
         feature_dict = make_feature_dict(df, categorical_features)
     
     test = data_type == 'test'
+
+    # encode every feature as an integer
+    df = encode_features(df, feature_dict, categorical_features)
+
+
     with open(fname, 'w') as f:
-        for ffm_row in ffm_row_generator(df, feature_dict, test):
+        for ffm_row in ffm_row_generator(df, test):
             f.write(ffm_row)
             f.write('\n')
 

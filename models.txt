@@ -3,6 +3,8 @@ Current high scores (1604 total entries):
     Private 0.3969011 (987th); Public 0.3990735
 - Model 1+ (site/app/device_id) on train_small. 5050s to train. No tuning.
     Private 0.3977059; Public 0.3997966
+- xLearn without count features, on 'small'.
+    Private 0.3977579, Public 0.3997753
 - Model 3 ('both', incl id cols). On 50% of train.csv. Tuned. Tuning time = 9895s.
     Private 0.4111518 (1162th); Public 0.4131281
 
