@@ -75,7 +75,7 @@ def ffm_row_generator(df, test=False):
 
         yield ' '.join(ffm_row)
         
-def df_to_ffm(df, categorical_features, fname, data_type='train', feature_dict_train=None):
+def df_to_ffm(df, categorical_features, fname, data_type='train', feature_dict_train=None, fast=False):
     """
     df: pd.DataFrame
     categorical_features: List[String] - a list of columns to use.
@@ -103,9 +103,19 @@ def df_to_ffm(df, categorical_features, fname, data_type='train', feature_dict_t
     df = encode_features(df, feature_dict, categorical_features)
 
 
-    with open(fname, 'w') as f:
-        for ffm_row in ffm_row_generator(df, test):
-            f.write(ffm_row)
+    if fast:
+        for i, col in enumerate(categorical_features):
+            df[col] = f'{i}:' + df[col].astype('str') + ':1'
+        if test:
+            df['dummy'] = np.ones(len(df))
+            df['dummy'] = df['dummy'].astype(int)
+            df[['dummy'] + categorical_features].to_csv(fname, sep=' ', header=False, index=False)
+        else:
+            df[['click'] + categorical_features].to_csv(fname, sep=' ', header=False, index=False)
+    else:
+        with open(fname, 'w') as f:
+            for ffm_row in ffm_row_generator(df, test):
+                f.write(ffm_row)
             f.write('\n')
 
     if test:
@@ -116,6 +126,7 @@ def df_to_ffm(df, categorical_features, fname, data_type='train', feature_dict_t
 
     if data_type == 'train':
         return feature_dict
+
 
 def submission_rows(prediction, prediction_id):
     with open(prediction, 'r') as probas, open(prediction_id, 'r') as ids:
@@ -132,7 +143,7 @@ def write_submission(prediction_site, prediction_id_site, prediction_app, predic
             out.write(row)
 
 
-def make_train_validate_data(df, categorical_features, name):
+def make_train_validate_data(df, categorical_features, name, fast=False):
     test_day = 30
     df_train, df_validate = train_test_split(df, None, test_day)
     df_train_site, df_train_app = site_app_split(df_train)
@@ -145,12 +156,12 @@ def make_train_validate_data(df, categorical_features, name):
     validate_app_out = os.path.join(ffm_data_path, f'validate_app_{name}.ffm')
 
     print(train_site_out)
-    feature_dict_site = df_to_ffm(df_train_site, categorical_features, train_site_out)
+    feature_dict_site = df_to_ffm(df_train_site, categorical_features, train_site_out, fast=fast)
     print(validate_site_out)
-    df_to_ffm(df_validate_site, categorical_features, validate_site_out, 'validate', feature_dict_site)
+    df_to_ffm(df_validate_site, categorical_features, validate_site_out, 'validate', feature_dict_site, fast)
     print(train_app_out)
-    feature_dict_app = df_to_ffm(df_train_app, categorical_features, train_app_out)
+    feature_dict_app = df_to_ffm(df_train_app, categorical_features, train_app_out, fast=fast)
     print(validate_app_out)
-    df_to_ffm(df_validate_app, categorical_features, validate_app_out, 'validate', feature_dict_app)
+    df_to_ffm(df_validate_app, categorical_features, validate_app_out, 'validate', feature_dict_app, fast)
 
     return train_site_out, validate_site_out, feature_dict_site, train_app_out, validate_app_out, feature_dict_app
